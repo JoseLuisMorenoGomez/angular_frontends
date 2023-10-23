@@ -1,2 +1,2 @@
-# Graphql Client Test
-Testing Graphql Client for browsing organization 
+# Angular frontends
+Testing Graphql Clients in angular with Angular-Apollo Client
