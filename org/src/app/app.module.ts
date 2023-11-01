@@ -7,10 +7,12 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { DepartmentsComponent } from './departments.component';
+import { DepartmentVisualizationComponent } from './department-visualization/department-visualization.component';
+
  
 @NgModule({
   imports: [BrowserModule, ApolloModule, HttpClientModule],
-  declarations: [AppComponent, DepartmentsComponent],
+  declarations: [AppComponent, DepartmentsComponent, DepartmentVisualizationComponent],
   bootstrap: [AppComponent],
   providers: [
     {

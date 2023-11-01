@@ -20,7 +20,7 @@ const GET_DEPARTMENTS = gql`
     <div *ngIf="error">Error : {{error}}(</div>
     <div *ngIf="Departments">
       <div *ngFor="let Department of Departments">
-        <p>{{ Department.name }}</p>
+        <p>{{ Department.id }}: {{ Department.name }}</p>
       </div>
     </div>
   `,

@@ -1,5 +1,4 @@
 FROM node:21 as builder
-MAINTAINER Manu Barrios<manuel.barrios@mymware.com>
 
 # set working directory
 RUN mkdir /usr/src/app
@@ -24,9 +23,6 @@ FROM nginx:1.25.2-alpine
 # copy artifact build from the 'build environment'
 COPY --from=builder  /usr/src/app/dist/org /usr/share/nginx/html
 COPY default.conf /etc/nginx/conf.d/default.conf
-
-# expose port 80
-# EXPOSE 80
 
 # run nginx
 CMD ["nginx", "-g", "daemon off;"]
