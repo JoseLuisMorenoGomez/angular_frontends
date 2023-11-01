@@ -19,7 +19,7 @@ import { DepartmentsComponent } from './departments.component';
         return {
           cache: new InMemoryCache(),
           link: httpLink.create({
-            uri: 'https://backend.pepelui.es/graphql/',
+            uri: 'https://graphene.pepelui.es/graphql/',
           }),
         };
       },

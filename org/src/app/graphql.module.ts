@@ -5,7 +5,7 @@ import { ApolloModule, APOLLO_OPTIONS } from 'apollo-angular';
 import { ApolloClientOptions, InMemoryCache } from '@apollo/client/core';
 import { HttpLink } from 'apollo-angular/http'
 
-const uri = 'https://backend.pepelui.es/graphql/';
+const uri = 'https://graphene.pepelui.es/graphql/';
 
 function createApollo(httpLink: HttpLink): ApolloClientOptions<any> {
   return {
