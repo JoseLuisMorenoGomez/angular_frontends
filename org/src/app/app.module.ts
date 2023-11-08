@@ -6,12 +6,11 @@ import { InMemoryCache } from '@apollo/client/core';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { orgcharComponent } from './org-chart/org-chart.component';
-} from './org-chart/org-chart.component';
+import { OrgChartComponent } from './org-chart/org-chart.component';
  
 @NgModule({
   imports: [BrowserModule, ApolloModule, HttpClientModule],
-  declarations: [AppComponent, orgcharComponent],
+  declarations: [AppComponent, OrgChartComponent],
   bootstrap: [AppComponent],
   providers: [
     {

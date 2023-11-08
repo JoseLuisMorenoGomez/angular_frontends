@@ -1,9 +1,8 @@
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
-// Apollo
 import { ApolloModule, APOLLO_OPTIONS } from 'apollo-angular';
 import { ApolloClientOptions, InMemoryCache } from '@apollo/client/core';
-import { HttpLink } from 'apollo-angular/http'
+import { HttpLink } from 'apollo-angular/http';
 
 const uri = 'https://graphene.pepelui.es/graphql/';
 

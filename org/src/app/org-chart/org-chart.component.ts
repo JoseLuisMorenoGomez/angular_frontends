@@ -1,64 +1,26 @@
-import { Apollo, gql } from 'apollo-angular';
-import { Subscription } from 'rxjs';
-import {
-  OnChanges,
-  Component,
-  OnInit,
-  OnDestroy,
-  Input,
-  ViewChild,
-  ElementRef
-} from "@angular/core";
-import { OrgChart } from 'd3-org-chart';
+import { Component, ElementRef, Input, OnInit, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import { OrgChartService } from './org-chart.service';
+import { Department } from './org-chart.models';
+import { OrgChart } from "d3-org-chart";
 
- 
-// We use the gql tag to parse our query string into a query document
-const GET_DEPARTMENTS = gql`
-      query MyQuery {
-        allOrgDepartments {
-          name
-        }
-}
-`;
- 
+
 @Component({
-  selector: 'organigrama',
-  template: `
-    <h3> Organigrama con datos obtenidos de la API Graphql</h3>
-    <div #chartContainer id="chartContainer"></div>
-  `,
+  selector: 'org-chart',
+  templateUrl: './org-chart.component.html',
+  styleUrls: ['./org-chart.component.css'],
 })
+export class OrgChartComponent implements OnInit, OnChanges {
+  @ViewChild("chartContainer") chartContainer!: ElementRef;
+  @Input() data: Department[] = [];
+  chart: OrgChart<Department>;
 
-export class orgcharComponent implements OnInit, OnChanges, OnDestroy {
-  Departments: any[];
-  loading = true;
-  error: any;
- 
-  const chart = new OrgChart()
-                    .data(ourData)
-                    .container(ourDomElementOrCssSelector)
-                    .duration(ourDuration)
-                    .render()
+  constructor(private orgChartService: OrgChartService) {}
 
-
-// We can keep chaining values in runtime
-chart.data(updatedData).render()
-
-
-  private querySubscription: Subscription;
- 
-  constructor(private apollo: Apollo) { chart: OrgChart}
- 
   ngOnInit() {
-    this.querySubscription = this.apollo
-      .watchQuery<any>({
-        query: GET_DEPARTMENTS,
-      })
-      .valueChanges.subscribe(({ data, loading, error }) => {
-        this.loading = loading;
-        this.Departments = data.allOrgDepartments;
-        this.error = error;
-      });
+    this.orgChartService.getDepartments().subscribe((result) => {
+      this.data = result;
+      console.log( 'Resultado del query: ' + result)
+    });
   }
 
   ngAfterViewInit() {
@@ -81,13 +43,11 @@ chart.data(updatedData).render()
     this.chart
       .container(this.chartContainer.nativeElement)
       .data(this.data)
+      .svgHeight(300)
       .svgWidth(500)
       .initialZoom(0.4)
       .onNodeClick(d => console.log(d + " node clicked"))
       .render();
-  }
-
-  ngOnDestroy() {
-    this.querySubscription.unsubscribe();
+    console.log("Data: "+ this.data)
   }
 }
