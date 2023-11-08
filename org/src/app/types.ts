@@ -1,8 +1,9 @@
-export type Department = {
+export type DepartmentType = {
     id: number;
     name: string;
+    
   };
   
 export type Query = {
-    Departments: Department[];
+    Departments: DepartmentType[];
   };
