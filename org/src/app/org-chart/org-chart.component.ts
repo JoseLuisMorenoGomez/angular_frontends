@@ -1,12 +1,8 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-
-import { Department, AllDepartmentsGQL } from './org-chart.service';
-
-import { OrgChart } from "d3-org-chart";
-
-
+import { OrgChart } from 'd3-org-chart';
+import { Department, AllDepartmentsGQL, Response } from './org-chart.service'; // Asegúrate de importar Response
 
 @Component({
   selector: 'org-chart',
@@ -15,24 +11,18 @@ import { OrgChart } from "d3-org-chart";
 })
 export class OrgChartComponent implements OnInit {
   @ViewChild("chartContainer") chartContainer!: ElementRef;
-  departments: Department[];
-  @Input() data: any[];
-  chart:OrgChart<any>;
-  private subscription: Subscription;
+  departments: Observable<Department[]>;
+  @Input() data: Department[] = [];
+  chart: OrgChart<any>;
 
   constructor(private AllDepartmentsGQL: AllDepartmentsGQL) {}
 
   ngOnInit() {
-    this.subscription = this.AllDepartmentsGQL.fetch()
-      .valueChanges
+    this.departments = this.AllDepartmentsGQL.fetch() 
       .pipe(
-        map(result => result.data.departments)
-      )
-      .subscribe(data => {
-        this.departments = data;
-        console.log("onInit(): " + data);
-        this.updateChart();
-      });
+        map((result) => result.data.departments)
+      );
+      
   }
 
   ngAfterViewInit() {
@@ -46,14 +36,13 @@ export class OrgChartComponent implements OnInit {
     this.updateChart();
   }
 
-
   updateChart() {
     if (!this.data) {
-        console.log("updateChart() : No data to render");     
-        return; 
+      console.log("updateChart(): no data to render");
+      return;
     }
     if (!this.chart) {
-      return; 
+      return;
     }
     this.chart
       .container(this.chartContainer.nativeElement)
@@ -61,8 +50,8 @@ export class OrgChartComponent implements OnInit {
       .svgHeight(300)
       .svgWidth(500)
       .initialZoom(0.4)
-      .onNodeClick(d => console.log(d + " node clicked"))
       .render();
-    console.log("UpdateChart(). Data: "+ this.data)
+    console.log("UpdateChart(). Data: " + this.data);
   }
 }
+
