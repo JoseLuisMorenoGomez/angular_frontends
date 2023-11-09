@@ -1,33 +1,32 @@
+import { gql, Query } from 'apollo-angular';
 import { Injectable } from '@angular/core';
-import { Apollo, gql } from 'apollo-angular';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
-import { Department } from './org-chart.models';
-
+export interface Department {
+  id: string;
+  name: string;
+  parent: {
+    id: string;
+    name: string;
+  };
+}
+export interface Response {
+  departments: Department[];
+}
+ 
 @Injectable({
   providedIn: 'root',
 })
-export class OrgChartService {
-  constructor(private apollo: Apollo) {}
-
-  getDepartments(): Observable<Department[]> {
-    const GET_DEPARTMENTS = gql`
-      query GetDepartments {
-        allOrgDepartments {
-            id
-            name
-            parent {
-                id
-            }        
+export class AllDepartmentsGQL extends Query<Response> {
+  override document = gql`
+    query allDepartments {
+      allOrgDepartments {
+        id
+        name
+        parent {
+          id
+          name
         }
       }
-    `;
-
-    return this.apollo
-      .watchQuery<{ departments: Department[] }>({
-        query: GET_DEPARTMENTS,
-      })
-      .valueChanges.pipe(map((result) => result.data.departments));
-  }
+    }
+  `;
 }
