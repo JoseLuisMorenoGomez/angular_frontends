@@ -1,8 +1,9 @@
-import { Component, ElementRef, Input, OnInit, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { Department, AllDepartmentsGQL } from './org-chart.service';
+
 import { OrgChart } from "d3-org-chart";
 
 
@@ -14,23 +15,24 @@ import { OrgChart } from "d3-org-chart";
 })
 export class OrgChartComponent implements OnInit {
   @ViewChild("chartContainer") chartContainer!: ElementRef;
-  departments: Observable<Department[]>;
+  departments: Department[];
   @Input() data: any[];
   chart:OrgChart<any>;
+  private subscription: Subscription;
 
   constructor(private AllDepartmentsGQL: AllDepartmentsGQL) {}
 
   ngOnInit() {
-    this.departments = this.AllDepartmentsGQL.watch({
-      first: 10
-    }, {
-      fetchPolicy: 'network-only'
-    })
+    this.subscription = this.AllDepartmentsGQL.fetch()
       .valueChanges
       .pipe(
         map(result => result.data.departments)
-      );
-      console.log("OnInit():")
+      )
+      .subscribe(data => {
+        this.departments = data;
+        console.log("onInit(): " + data);
+        this.updateChart();
+      });
   }
 
   ngAfterViewInit() {
@@ -43,10 +45,12 @@ export class OrgChartComponent implements OnInit {
   ngOnChanges() {
     this.updateChart();
   }
+
+
   updateChart() {
     if (!this.data) {
-      console.log("UpdateChart. No hay datos")
-      return; 
+        console.log("updateChart() : No data to render");     
+        return; 
     }
     if (!this.chart) {
       return; 
@@ -59,6 +63,6 @@ export class OrgChartComponent implements OnInit {
       .initialZoom(0.4)
       .onNodeClick(d => console.log(d + " node clicked"))
       .render();
-    console.log("UpdateChart. Data: "+ this.data)
+    console.log("UpdateChart(). Data: "+ this.data)
   }
 }

@@ -2,10 +2,10 @@ import { gql, Query } from 'apollo-angular';
 import { Injectable } from '@angular/core';
 
 export interface Department {
-  id: string;
+  id: BigInt;
   name: string;
   parent: {
-    id: string;
+    id: BigInt;
     name: string;
   };
 }
