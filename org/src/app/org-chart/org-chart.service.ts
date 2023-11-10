@@ -1,32 +1,29 @@
-import { gql, Query } from 'apollo-angular';
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
-export interface Department {
-  id: BigInt;
-  name: string;
-  parent: {
-    id: BigInt;
-    name: string;
-  };
-}
-export interface Response {
-  departments: Department[];
-}
- 
 @Injectable({
   providedIn: 'root',
 })
-export class AllDepartmentsGQL extends Query<Response> {
-  override document = gql`
-    query allDepartments {
-      allOrgDepartments {
-        id
-        name
-        parent {
-          id
-          name
+export class OrgChartService {
+  private orgChartUrl = 'https://graphene.pepelui.es/graphql/'; // La URL de tu servidor GraphQL
+
+  constructor(private http: HttpClient) {}
+
+  getOrgChart(): Observable<any> {
+    const query = `
+      query MyQuery {
+        allOrgDepartments {
+          orgdepartmentSet {
+            id
+            name
+          }
         }
       }
-    }
-  `;
+    `;
+
+    return this.http.post(this.orgChartUrl, { query });
+  }
 }
+
+
