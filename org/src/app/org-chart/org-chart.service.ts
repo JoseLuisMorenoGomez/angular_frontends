@@ -6,7 +6,9 @@ import { Observable } from 'rxjs';
 
 export interface OrgNode {
   id: string;
-  parentId:string;
+  parent:{
+    id:string
+  }
   name: string;
 }
 
@@ -27,12 +29,12 @@ export class OrgChartService {
           query MyQuery {
             allOrgDepartments {
               id
-              parentId: parent {
+              parent {
                 id
               }
             name
-  }
-}
+            }
+          }
         `,
       })
       .pipe(
@@ -47,18 +49,4 @@ export class OrgChartService {
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
