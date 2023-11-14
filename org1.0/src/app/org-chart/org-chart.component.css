@@ -1,0 +1,10 @@
+/* org-chart.component.css */
+
+/* Estilos para el componente OrgChart */
+.chart-container {
+    width: 100%;
+    height: 900px; /* O ajusta la altura según tus necesidades */
+    border: 1px solid #ccc;
+    margin-top: 20px;
+    font-family: 'Roboto', sans-serif;
+  }
