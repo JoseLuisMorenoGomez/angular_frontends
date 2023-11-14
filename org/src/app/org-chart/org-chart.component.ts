@@ -1,71 +1,62 @@
-import { Component,  ElementRef, OnInit, AfterViewInit ,ViewChild} from '@angular/core';
-import * as d3 from 'd3';
+import { AfterViewInit, Component } from '@angular/core';
+import { OrgChartService, OrgNode } from './org-chart.service';
+import { HierarchyNode } from 'd3';
+import { ORG_CHART_CONSTANTS } from './org-chart.constants';
 import { OrgChart } from 'd3-org-chart';
-import { OrgChartService } from './org-chart.service';
 
-interface OrgDepartment {
-  id: number;
+interface D3OrgChartNode {
+  nodeId: string;
+  parentNodeId: string| null;
   name: string;
+  width: number;
+  height: number;
+  // ... (resto del código)
 }
 
-interface OrgChartData {
-  allOrgDepartments: {
-    orgdepartmentSet: OrgDepartment[];
-  }[];
-}
-
-interface HierarchyNode {
-  id?: number;
-  name: string;
-  children?: HierarchyNode[];
-}
 
 @Component({
-  selector: 'org-chart',
-  template: '<div class=chart-container>  </div>',
+  selector: 'app-org-chart',
+  templateUrl: './org-chart.component.html',
   styleUrls: ['./org-chart.component.css']
 })
-export class OrgChartComponent implements OnInit, AfterViewInit  {
-  @ViewChild('chartcontainer') chartContainer: ElementRef;
+export class OrgChartComponent implements AfterViewInit {
+  private chart: OrgChart<D3OrgChartNode>;
+  private data: OrgNode[]; // Usar la interfaz de nodos aplanados
+  private chartConstants = ORG_CHART_CONSTANTS;
 
   constructor(private orgChartService: OrgChartService) {}
 
-  ngOnInit(): void {
-
-  
-  }
-
   ngAfterViewInit(): void {
-    this.orgChartService.getOrgChart().subscribe((allOrgDepartments) => {
-      new OrgChart().container('.chart-container').data(allOrgDepartments).render();
-    });
+    setTimeout(() => {
+      this.orgChartService.getOrgChart().subscribe((orgData: OrgNode[]) => {
+        this.data = orgData;
+        this.renderChart();
+      });
+    }, 100);
   }
 
-  private getFlattenedData(data: OrgChartData): HierarchyNode {
-    const allOrgDepartments = data.allOrgDepartments;
+  private renderChart(): void {
+    console.log( "renderChart called!");
+    const chartContainer = document.querySelector('.chart-container');
 
-    const hierarchyData: HierarchyNode = {
-      name: 'Root',
-      children: allOrgDepartments.map((department) => ({
-        name: department.orgdepartmentSet[0].name,
-        children: department.orgdepartmentSet.slice(1).map((subDepartment) => ({
-          name: subDepartment.name
-        }))
-      }))
-    };
+   
+    this.chart = new OrgChart<D3OrgChartNode>().container('.chart-container');
 
-    const descendants = d3.hierarchy(hierarchyData).descendants();
-
-    descendants.forEach((d, i) => {
-      // Assign to data property, not id directly
-      d.data.id = d.data.id ? d.data.id : i; // Use i as a fallback if id is not present
-    });
-
-    return {
-      name: hierarchyData.name,
-      children: descendants
-        .filter(node => node.children)
-        .map(node => ({ id: node.data.id, name: node.data.name }))
-    };
+    this.chart
+      .data(this.mapToD3OrgChart(this.data))
+      .render();
+      
+    console.log(this.chart.data);
+  }
+  // Función para mapear nodos aplanados a nodos de D3
+  private mapToD3OrgChart(nodes: OrgNode[]): D3OrgChartNode[] {
+    return nodes.map((node) => ({
+      nodeId: `O-${node.id}`,
+      parentNodeId: node.parentId,
+      name: node.name,
+      width: this.chartConstants.NODE_WIDTH,
+      height: this.chartConstants.NODE_HEIGHT,
+  
+    }));
   }
 }

@@ -1,29 +1,64 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Apollo } from 'apollo-angular';
+import gql from 'graphql-tag';
+import { map, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+
+export interface OrgNode {
+  id: string;
+  parentId:string;
+  name: string;
+}
+
+export interface OrgChartResponse {
+  allOrgDepartments: OrgNode[];
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class OrgChartService {
-  private orgChartUrl = 'https://graphene.pepelui.es/graphql/'; // La URL de tu servidor GraphQL
+  constructor(private apollo: Apollo) {}
 
-  constructor(private http: HttpClient) {}
-
-  getOrgChart(): Observable<any> {
-    const query = `
-      query MyQuery {
-        allOrgDepartments {
-          orgdepartmentSet {
-            id
+  getOrgChart(): Observable<OrgNode[]> {
+    return this.apollo
+      .query<OrgChartResponse>({
+        query: gql`
+          query MyQuery {
+            allOrgDepartments {
+              id
+              parentId: parent {
+                id
+              }
             name
-          }
-        }
-      }
-    `;
-
-    return this.http.post(this.orgChartUrl, { query });
   }
 }
+        `,
+      })
+      .pipe(
+        tap((response) => {
+          console.log('Data from GraphQL:', response.data.allOrgDepartments);
+        }),
+        map((response) => {
+          return response.data.allOrgDepartments
+        })
+      );
+  }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

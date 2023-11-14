@@ -7,7 +7,7 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { OrgChartComponent } from './org-chart/org-chart.component';
- 
+
 @NgModule({
   imports: [BrowserModule, ApolloModule, HttpClientModule],
   declarations: [AppComponent, OrgChartComponent],

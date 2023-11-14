@@ -1,9 +1,7 @@
 export type Department = {
     id: number;
     name: string;
-    parent: {
-      id: number;
-      name: string;
+    subdepartment: Department[]
     }
   };
   
