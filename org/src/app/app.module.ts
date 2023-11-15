@@ -7,12 +7,22 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { OrgChartComponent } from './org-chart/org-chart.component';
+import { RightPanelComponent } from './right-panel/right-panel.component';
+import { LeftPanelComponent } from './left-panel/left-panel.component';
+import { HeaderComponent } from './header/header.component';
+import { FooterComponent } from './footer/footer.component';
+import { SelectedNodeService } from './org-chart/org-selected-node.service';
+import { OrgChartService } from './org-chart/org-chart.service';
+
 
 @NgModule({
   imports: [BrowserModule, ApolloModule, HttpClientModule],
-  declarations: [AppComponent, OrgChartComponent],
+  declarations: [AppComponent,
+                 OrgChartComponent, RightPanelComponent, LeftPanelComponent,HeaderComponent, FooterComponent],
   bootstrap: [AppComponent],
   providers: [
+    SelectedNodeService,
+    OrgChartService,
     {
       provide: APOLLO_OPTIONS,
       useFactory(httpLink: HttpLink) {

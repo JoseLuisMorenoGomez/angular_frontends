@@ -1,9 +1,10 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
 import { OrgChartService, OrgNode } from './org-chart.service';
 import { OrgChart } from 'd3-org-chart';
 import { ORG_CHART_CONSTANTS } from './org-chart.constants';
+import { SelectedNodeService } from './org-selected-node.service';
 
-interface D3OrgChartNode {
+export interface D3OrgChartNode {
   nodeId: string;
   parentNodeId: string | null;
   name: string;
@@ -25,7 +26,7 @@ export class OrgChartComponent implements AfterViewInit {
   // Usar ViewChild para obtener una referencia al elemento del DOM
   @ViewChild('chartContainer', { static: false }) chartContainerRef: ElementRef;
 
-  constructor(private orgChartService: OrgChartService) {}
+  constructor(private orgChartService: OrgChartService, private selectedNodeService: SelectedNodeService) {}
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -49,7 +50,9 @@ export class OrgChartComponent implements AfterViewInit {
              ${node.data.name}
          </div>`;
       })
-
+      .onNodeClick((d) => {
+         this.onSelectNode(d.data);
+      })
       .render();
   }
 
@@ -63,5 +66,10 @@ export class OrgChartComponent implements AfterViewInit {
       height: this.chartConstants.NODE_HEIGHT,
     }));
     return d3Nodes;
+  }
+
+  private onSelectNode(node: D3OrgChartNode): void {
+    console.log('onSelectedNode: '+ node.name);
+    this.selectedNodeService.setSelectedNode(node);
   }
 }

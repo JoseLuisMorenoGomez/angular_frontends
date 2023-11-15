@@ -1,4 +1,26 @@
-.content {
-    font-family: 'Roboto', sans-serif;
-    text-align: center;
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  .main-content {
+    display: flex;
+    flex: 1;
+  }
+  
+app-header,
+app-footer {
+  background-color: #3498db;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+}
+
+app-left-panel,
+app-right-panel {
+  display: flex;
+  flex: 1;
+  border: 1px solid #ddd;
+  overflow: auto;
 }
