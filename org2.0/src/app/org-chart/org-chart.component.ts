@@ -8,8 +8,8 @@ export interface D3OrgChartNode {
   nodeId: string;
   parentNodeId: string | null;
   name: string;
-  nodeWidth: number;
-  nodeHeight: number;
+  width: number;
+  height: number;
   // ... (resto del código)
 }
 
@@ -62,8 +62,8 @@ export class OrgChartComponent implements AfterViewInit {
       nodeId: node.id,
       parentNodeId: node.parent?.id || null,
       name: node.name || '',
-      nodeWidth: this.chartConstants.NODE_WIDTH,
-      nodeHeight: this.chartConstants.NODE_HEIGHT,
+      width: this.chartConstants.NODE_WIDTH,
+      height: this.chartConstants.NODE_HEIGHT,
     }));
     return d3Nodes;
   }
