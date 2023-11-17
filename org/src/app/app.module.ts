@@ -11,17 +11,18 @@ import { RightPanelComponent } from './right-panel/right-panel.component';
 import { LeftPanelComponent } from './left-panel/left-panel.component';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
-import { SelectedNodeService } from './org-chart/org-selected-node.service';
+import { SelectedNodeService, GraphqlService } from './org-chart/org-selected-node.service';
 import { OrgChartService } from './org-chart/org-chart.service';
-
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
-  imports: [BrowserModule, ApolloModule, HttpClientModule],
+  imports: [BrowserModule, ApolloModule, HttpClientModule,MatDialogModule,],
   declarations: [AppComponent,
                  OrgChartComponent, RightPanelComponent, LeftPanelComponent,HeaderComponent, FooterComponent],
   bootstrap: [AppComponent],
   providers: [
     SelectedNodeService,
+   
     OrgChartService,
     {
       provide: APOLLO_OPTIONS,

@@ -1,8 +1,12 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+// org-chart.component.ts
+
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { OrgChartService, OrgNode } from './org-chart.service';
 import { OrgChart } from 'd3-org-chart';
 import { ORG_CHART_CONSTANTS } from './org-chart.constants';
-import { SelectedNodeService } from './org-selected-node.service';
+import { SelectedNodeService,GraphqlService } from './org-selected-node.service';
+import { MatDialog } from '@angular/material/dialog';
+import { NodePopupComponent } from '../node-popup/node-popup.component';
 
 export interface D3OrgChartNode {
   nodeId: string;
@@ -26,7 +30,12 @@ export class OrgChartComponent implements AfterViewInit {
   // Usar ViewChild para obtener una referencia al elemento del DOM
   @ViewChild('chartContainer', { static: false }) chartContainerRef: ElementRef;
 
-  constructor(private orgChartService: OrgChartService, private selectedNodeService: SelectedNodeService) {}
+  constructor(
+    private orgChartService: OrgChartService,
+    private selectedNodeService: SelectedNodeService,
+    private graphqlService: GraphqlService,
+    private dialog: MatDialog,
+  ) {}
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -51,7 +60,7 @@ export class OrgChartComponent implements AfterViewInit {
          </div>`;
       })
       .onNodeClick((d) => {
-         this.onSelectNode(d.data);
+        this.onSelectNode(d.data);
       })
       .render();
   }
@@ -69,7 +78,21 @@ export class OrgChartComponent implements AfterViewInit {
   }
 
   private onSelectNode(node: D3OrgChartNode): void {
-    console.log('onSelectedNode: '+ node.name);
+    console.log('onSelectedNode: ' + node.name);
     this.selectedNodeService.setSelectedNode(node);
+    this.graphqlService.getNodeInfo(node.nodeId).subscribe((nodeInfo) => {
+    const nodeInfoString = JSON.stringify(nodeInfo);
+    this.openNodeInfoPopup(nodeInfoString);
+     
+    });
+  }
+
+  openNodeInfoPopup(data: string): void {
+    
+    const dialogRef = this.dialog.open(NodePopupComponent, {
+      width: '600px',  
+      height:'400px',
+      data: {data},  
+    });
   }
 }

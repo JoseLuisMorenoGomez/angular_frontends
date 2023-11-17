@@ -1,0 +1,37 @@
+/* node-popup.component.css */
+
+/* Estilos para la ventana modal */
+.modal {
+    max-width: 400px;
+    margin: 20px auto;
+  }
+  
+  /* Estilos para el contenido del formulario */
+  .modal-content {
+    padding: 20px;
+  }
+  
+  /* Estilos para los campos del formulario */
+  .input-field {
+    margin-bottom: 15px;
+  }
+  
+  /* Estilos para las etiquetas de los campos */
+  .input-field label {
+    font-size: 14px;
+    color: #333;
+  }
+  
+  /* Estilos para los campos de entrada de texto */
+  .input-field input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  /* Estilos para el botón de cerrar */
+  .modal-content button {
+    margin-top: 20px;
+  }
+  
