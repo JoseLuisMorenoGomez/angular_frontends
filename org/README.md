@@ -22,7 +22,7 @@ El organigrama se construye a partir de datos jerárquicos almacenados en un ser
 
 ## Instalación
 
-1. Clona este repositorio: `git clone https://github.com/tu-usuario/organigrama-angular-d3.git`
+1. Clona este repositorio: `git clone https://github.com/JoseLuisMorenoGomez/angular_frontends.git`
 2. Instala las dependencias: `npm install`
 3. Inicia la aplicación: `ng serve`
 
