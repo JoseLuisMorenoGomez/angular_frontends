@@ -24,6 +24,9 @@
       "dom",
       "esnext.asynciterable"
     ],
+    "typeRoots": [
+      "node_modules/@types"
+    ],
     "allowSyntheticDefaultImports": true
   },
   "angularCompilerOptions": {
