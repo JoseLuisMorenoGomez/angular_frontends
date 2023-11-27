@@ -11,8 +11,8 @@ import { RightPanelComponent } from './right-panel/right-panel.component';
 import { LeftPanelComponent } from './left-panel/left-panel.component';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
-import { SelectedNodeService, GraphqlService } from './org-chart/org-selected-node.service';
-import { OrgChartService } from './org-chart/org-chart.service';
+import { OrgSelectedNodeService} from './org-chart/org-selected-node.service';
+import { OrgChartDataService } from './org-chart/org-chart.data.service';
 import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
@@ -21,9 +21,8 @@ import { MatDialogModule } from '@angular/material/dialog';
                  OrgChartComponent, RightPanelComponent, LeftPanelComponent,HeaderComponent, FooterComponent],
   bootstrap: [AppComponent],
   providers: [
-    SelectedNodeService,
-   
-    OrgChartService,
+    OrgSelectedNodeService,
+    OrgChartDataService,
     {
       provide: APOLLO_OPTIONS,
       useFactory(httpLink: HttpLink) {

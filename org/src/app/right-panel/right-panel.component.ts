@@ -1,8 +1,8 @@
 // right-panel.component.ts
 import { Component, OnInit } from '@angular/core';
-import { SelectedNodeService } from '../org-chart/org-selected-node.service';
+import { OrgSelectedNodeService } from '../org-chart/org-selected-node.service';
 import { Subscription } from 'rxjs';
-import { D3OrgChartNode } from '../org-chart/org-chart.component';
+import { OrgChartNode } from '../org-chart/org-chart.component';
 
 @Component({
   selector: 'app-right-panel',
@@ -10,13 +10,13 @@ import { D3OrgChartNode } from '../org-chart/org-chart.component';
   styleUrls: ['./right-panel.component.css']
 })
 export class RightPanelComponent implements OnInit {
-  selectedNode: D3OrgChartNode | null;
+  selectedNode: OrgChartNode | null;
   private subscription: Subscription;
 
-  constructor(private selectedNodeService: SelectedNodeService) {}
+  constructor(private OrgSelectedNodeService: OrgSelectedNodeService) {}
 
   ngOnInit() {
-    this.subscription = this.selectedNodeService.getSelectedNode$().subscribe((selectedNode) => {
+    this.subscription = this.OrgSelectedNodeService.getSelectedNode$().subscribe((selectedNode) => {
       this.selectedNode = selectedNode;
       // Otras acciones según sea necesario
     });

@@ -1,98 +1,95 @@
 // org-chart.component.ts
 
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import { OrgChartService, OrgNode } from './org-chart.service';
+import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { OrgChart } from 'd3-org-chart';
-import { ORG_CHART_CONSTANTS } from './org-chart.constants';
-import { SelectedNodeService,GraphqlService } from './org-selected-node.service';
 import { MatDialog } from '@angular/material/dialog';
-import { NodePopupComponent } from '../node-popup/node-popup.component';
+import { HierarchyNode } from 'd3-hierarchy';
 
-export interface D3OrgChartNode {
+import { ORG_CHART_CONSTANTS } from './org-chart.constants';
+import { NodePopupComponent } from '../node-popup/node-popup.component';
+import { OrgChartDataService, DepartmentNode } from './org-chart.data.service';
+import { OrgSelectedNodeService } from './org-selected-node.service';
+import { select } from 'd3';
+
+export interface OrgChartNode {
   nodeId: string;
   parentNodeId: string | null;
   name: string;
   nodeWidth: number;
   nodeHeight: number;
-  // ... (resto del código)
 }
 
 @Component({
   selector: 'app-org-chart',
   templateUrl: './org-chart.component.html',
-  styleUrls: ['./org-chart.component.css']
+  styleUrls: ['./org-chart.component.css'],
 })
 export class OrgChartComponent implements AfterViewInit {
-  private chart: OrgChart<D3OrgChartNode>;
-  private data: OrgNode[]; // Usar la interfaz de nodos aplanados
+  private chart: OrgChart<OrgChartNode>;
+  private data: DepartmentNode[];
   private chartConstants = ORG_CHART_CONSTANTS;
 
-  // Usar ViewChild para obtener una referencia al elemento del DOM
   @ViewChild('chartContainer', { static: false }) chartContainerRef: ElementRef;
 
   constructor(
-    private orgChartService: OrgChartService,
-    private selectedNodeService: SelectedNodeService,
-    private graphqlService: GraphqlService,
-    private dialog: MatDialog,
+    private orgSelectedNodeService: OrgSelectedNodeService,
+    private orgChartDataService: OrgChartDataService,
+    private dialog: MatDialog
   ) {}
 
   ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.orgChartService.getOrgChart().subscribe((orgData: OrgNode[]) => {
-        this.data = orgData;
-        this.renderChart();
-      });
-    }, 100);
+    this.orgChartDataService.getHierarchy().subscribe((orgData: DepartmentNode[]) => {
+      this.data = orgData;
+      this.renderChart();
+    });
   }
 
   private renderChart(): void {
-    // Acceder al contenedor utilizando la referencia de elemento
     const chartContainer = this.chartContainerRef.nativeElement;
 
-    this.chart = new OrgChart<D3OrgChartNode>().container(chartContainer);
+    this.chart = new OrgChart<OrgChartNode>().container(chartContainer);
 
     this.chart
       .data(this.mapToD3OrgChart(this.data))
       .nodeContent((node) => {
-        return `<div class="chart-node">  
-             ${node.data.name}
-         </div>`;
+        return `<div class="chart-node">${node.data.name}</div>`;
       })
       .onNodeClick((d) => {
-        this.onSelectNode(d.data);
+        this.onSelectNode(d);
       })
       .render();
   }
 
-  // Función para mapear nodos de Graphql a nodos de D3  (id,parentId,name,..)
-  private mapToD3OrgChart(nodes: OrgNode[]): D3OrgChartNode[] {
-    const d3Nodes = nodes.map((node) => ({
+  private mapToD3OrgChart(nodes: DepartmentNode[]): OrgChartNode[] {
+    const orgChartNodes = nodes.map((node) => ({
       nodeId: node.id,
       parentNodeId: node.parent?.id || null,
       name: node.name || '',
       nodeWidth: this.chartConstants.NODE_WIDTH,
       nodeHeight: this.chartConstants.NODE_HEIGHT,
+      // Otras propiedades que puedas necesitar
     }));
-    return d3Nodes;
+    return orgChartNodes;
   }
 
-  private onSelectNode(node: D3OrgChartNode): void {
-    console.log('onSelectedNode: ' + node.name);
-    this.selectedNodeService.setSelectedNode(node);
-    this.graphqlService.getNodeInfo(node.nodeId).subscribe((nodeInfo) => {
-    const nodeInfoString = JSON.stringify(nodeInfo);
-    this.openNodeInfoPopup(nodeInfoString);
-     
+  onSelectNode(d3Node: HierarchyNode<OrgChartNode>): void {
+    const selectedNode = d3Node.data;
+    this.orgSelectedNodeService.setSelectedNode(selectedNode);
+    
+    this.orgChartDataService.getDepartmentById(selectedNode.nodeId).subscribe((nodeInfo) => {
+      if (nodeInfo) {
+        this.openNodeInfoPopup(nodeInfo);
+      }
     });
   }
+  
 
-  openNodeInfoPopup(data: string): void {
-    
+  openNodeInfoPopup(nodeInfo: DepartmentNode): void {
     const dialogRef = this.dialog.open(NodePopupComponent, {
-      width: '600px',  
-      height:'400px',
-      data: {data},  
+      width: '600px',
+      height: '400px',
+      data: { nodeInfo },
     });
   }
 }
+

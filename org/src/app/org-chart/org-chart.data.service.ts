@@ -3,8 +3,10 @@
 import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import gql from 'graphql-tag';
-import { map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+
+
 
 export interface DepartmentNode {
   id: string;
@@ -14,8 +16,12 @@ export interface DepartmentNode {
   };
 }
 
-export interface OrgChartResponse {
+export interface OrgChartListResponse {
   allOrgDepartments: DepartmentNode[];
+}
+
+export interface OrgChartResponse {
+  orgDepartment: DepartmentNode;
 }
 
 @Injectable({
@@ -38,13 +44,14 @@ export class OrgChartDataService {
     `;
 
     return this.apollo
-      .watchQuery<OrgChartResponse>({
+      .watchQuery<OrgChartListResponse>({
         query: getHierarchy,
       })
-      .valueChanges.pipe(map((result) => result.data.allOrgDepartments));
+      .valueChanges.pipe(map((result) => result.data.allOrgDepartments)
+      );
   }
 
-  getDepartmentById(id: string): Observable<DepartmentNode> {
+  getDepartmentById(id: string): Observable<DepartmentNode | null> {
     const getDepartmentByIDQuery = gql`
       query getDepartmentByID($id: ID!) {
         orgDepartment(id: $id) {
@@ -56,7 +63,7 @@ export class OrgChartDataService {
         }
       }
     `;
-
+  
     return this.apollo
       .watchQuery<OrgChartResponse>({
         query: getDepartmentByIDQuery,
@@ -64,7 +71,15 @@ export class OrgChartDataService {
           id: id,
         },
       })
-      .valueChanges.pipe(map((result) => result.data.allOrgDepartments[0]));
+      .valueChanges.pipe(map((result) => result.data.orgDepartment),
+        catchError((error) => {
+          console.error('Error fetching department data:', error);
+          return of(null);
+        })
+      );
   }
+ 
+  
 }
+
 
