@@ -83,7 +83,6 @@ export class OrgChartComponent implements AfterViewInit {
     });
   }
   
-
   openNodeInfoPopup(nodeInfo: DepartmentNode): void {
     const dialogRef = this.dialog.open(NodePopupComponent, {
       width: '600px',
