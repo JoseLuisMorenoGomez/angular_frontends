@@ -7,10 +7,11 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { OrgChartDataService } from './org-chart/org-chart.data.service';
+import { HighchartsChartModule } from 'highcharts-angular';
 
 
 @NgModule({
-  imports: [BrowserModule, ApolloModule, HttpClientModule],
+  imports: [BrowserModule, ApolloModule, HttpClientModule, HighchartsChartModule],
   declarations: [AppComponent],
   bootstrap: [AppComponent],
   providers: [

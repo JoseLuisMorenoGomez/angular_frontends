@@ -18,8 +18,6 @@ HCOrganization(Highcharts);
   styleUrls: ['./org-chart.component.css'],
 })
 
-
-
 export class OrgChartComponent implements OnInit {
   @ViewChild('chartContainer', { static: false }) chartContainerRef!: ElementRef;
 
@@ -88,7 +86,6 @@ export class OrgChartComponent implements OnInit {
     });
     return nodesData;
   }
-
-  
+ 
 }
 
