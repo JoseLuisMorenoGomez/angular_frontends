@@ -1,23 +1,45 @@
-// org-chart.component.ts
-
 import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { OrgChart } from 'd3-org-chart';
 import { MatDialog } from '@angular/material/dialog';
 import { HierarchyNode } from 'd3-hierarchy';
 
-import { ORG_CHART_CONSTANTS } from './org-chart.constants';
-import { NodePopupComponent } from '../node-popup/node-popup.component';
-import { OrgChartDataService, DepartmentNode } from './org-chart.data.service';
+import { OrgChartDataService, OrgChartNodeData } from './org-chart.data.service';
 import { OrgSelectedNodeService } from './org-selected-node.service';
-import { select } from 'd3';
+import { NodePopupComponent } from '../node-popup/node-popup.component';
 
-export interface OrgChartNode {
-  nodeId: string;
-  parentNodeId: string | null;
-  name: string;
-  nodeWidth: number;
-  nodeHeight: number;
-}
+// Importa las constantes del gráfico y la plantilla del contenido del nodo
+import { ChartConstants } from './chartConstants';
+import { nodeContentTemplate, pagingButtomTemplate } from './nodeTemplates';
+
+
+// Función para generar contenido del nodo
+const generateNodeContent = (d:HierarchyNode<OrgChartNodeData>) => {
+  const template = nodeContentTemplate
+    .replace('{width}', ChartConstants.width)
+    .replace('{height}', ChartConstants.height)
+    .replace('{imageDiffVert}', ChartConstants.imageDiffVert)
+    .replace('{backgroundColor}', ChartConstants.nodeBackgroundColor)
+    .replace('{border}', d.data._highlighted || ChartConstants.upToTheRootHighlighted ? ChartConstants.highlightedBorder : ChartConstants.defaultBorder)
+    .replace('{id}', d.data.id)
+    .replace('{image}', d.data.image)
+    .replace('{name}', d.data.name)
+    .replace('{position}', d.data.position)
+    .replace('{textColor}', ChartConstants.textColor);
+
+  return template;
+};
+
+// Función para generar el botón de paginación
+const generatePagingButton = (d:HierarchyNode<OrgChartNodeData>, state:any) => {
+  const step = state.pagingStep(d.parent);
+  const currentIndex = d.parent.data._pagingStep;
+  const diff = d.parent.data._directSubordinatesPaging - currentIndex;
+  const min = Math.min(diff, step);
+  const template = pagingButtomTemplate
+    .replace('{min}', ChartConstants.min)
+    .replace('{nodeBackgroundColor}', ChartConstants.nodeBackgroundColor)  
+  return template;
+};
 
 @Component({
   selector: 'app-org-chart',
@@ -25,9 +47,9 @@ export interface OrgChartNode {
   styleUrls: ['./org-chart.component.css'],
 })
 export class OrgChartComponent implements AfterViewInit {
-  private chart: OrgChart<OrgChartNode>;
-  private data: DepartmentNode[];
-  private chartConstants = ORG_CHART_CONSTANTS;
+  private chart: OrgChart<OrgChartNodeData>;
+  private data: OrgChartNodeData[];
+  private chartConstants = ChartConstants;
 
   @ViewChild('chartContainer', { static: false }) chartContainerRef: ElementRef;
 
@@ -38,52 +60,54 @@ export class OrgChartComponent implements AfterViewInit {
   ) {}
 
   ngAfterViewInit(): void {
-    this.orgChartDataService.getHierarchy().subscribe((orgData: DepartmentNode[]) => {
-      this.data = orgData;
+    this.orgChartDataService.getHierarchy().subscribe((nodesData: OrgChartNodeData[]) => {
+      this.data = nodesData;
       this.renderChart();
     });
   }
 
+  ngOnDestroy() {
+    //TODO: De-suscribirse para evitar posibles fugas de memoria
+  
+  }
+
   private renderChart(): void {
-    const chartContainer = this.chartContainerRef.nativeElement;
-
-    this.chart = new OrgChart<OrgChartNode>().container(chartContainer);
-
-    this.chart
-      .data(this.mapToD3OrgChart(this.data))
-      .nodeContent((node) => {
-        return `<div class="chart-node">${node.data.name}</div>`;
-      })
-      .onNodeClick((d) => {
-        this.onSelectNode(d);
-      })
-      .render();
+    if (this.data) {
+      this.chart = new OrgChart<OrgChartNodeData>()
+        .compact(false)
+        .pagingStep((d) => 5)
+        .minPagingVisibleNodes((d) => 14)
+        .container(this.chartContainerRef.nativeElement)
+        .svgWidth(800)
+        .svgHeight(600)
+        .data(this.data)
+        .onNodeClick((d) => {
+          this.onSelectNode(d);
+        })
+        .pagingButton(generatePagingButton)
+        .nodeWidth((d) => 160 + 2)
+        .nodeHeight((d) => 100 + 25)
+        .childrenMargin((d) => 50)
+        .compactMarginBetween((d) => 35)
+        .compactMarginPair((d) => 30)
+        .neighbourMargin((a, b) => 20)
+        .nodeContent(generateNodeContent)
+        .render();
+    }
   }
 
-  private mapToD3OrgChart(nodes: DepartmentNode[]): OrgChartNode[] {
-    const orgChartNodes = nodes.map((node) => ({
-      nodeId: node.id,
-      parentNodeId: node.parent?.id || null,
-      name: node.name || '',
-      nodeWidth: this.chartConstants.NODE_WIDTH,
-      nodeHeight: this.chartConstants.NODE_HEIGHT,
-      // Otras propiedades que puedas necesitar
-    }));
-    return orgChartNodes;
-  }
-
-  onSelectNode(d3Node: HierarchyNode<OrgChartNode>): void {
+  private onSelectNode(d3Node: HierarchyNode<OrgChartNodeData>): void {
     const selectedNode = d3Node.data;
     this.orgSelectedNodeService.setSelectedNode(selectedNode);
-    
-    this.orgChartDataService.getDepartmentById(selectedNode.nodeId).subscribe((nodeInfo) => {
+
+    this.orgChartDataService.getDepartmentById(selectedNode.id).subscribe((nodeInfo) => {
       if (nodeInfo) {
         this.openNodeInfoPopup(nodeInfo);
       }
     });
   }
-  
-  openNodeInfoPopup(nodeInfo: DepartmentNode): void {
+
+  private openNodeInfoPopup(nodeInfo: OrgChartNodeData): void {
     const dialogRef = this.dialog.open(NodePopupComponent, {
       width: '600px',
       height: '400px',

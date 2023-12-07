@@ -1,7 +1,7 @@
 // selected-node.service.ts
 
 import { Injectable } from '@angular/core';
-import { OrgChartNode } from './org-chart.component';
+import { OrgChartNodeData } from './org-chart.data.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Apollo } from 'apollo-angular';
@@ -12,13 +12,13 @@ import { NodePopupComponent } from '../node-popup/node-popup.component'
   providedIn: 'root',
 })
 export class OrgSelectedNodeService {
-  private selectedNodeSubject: BehaviorSubject<OrgChartNode | null> = new BehaviorSubject<OrgChartNode | null>(null);
+  private selectedNodeSubject: BehaviorSubject<OrgChartNodeData | null> = new BehaviorSubject<OrgChartNodeData | null>(null);
 
-  setSelectedNode(node: OrgChartNode): void {
+  setSelectedNode(node: OrgChartNodeData): void {
     this.selectedNodeSubject.next(node);
   }
 
-  getSelectedNode$(): Observable<OrgChartNode | null> {
+  getSelectedNode$(): Observable<OrgChartNodeData | null> {
     return this.selectedNodeSubject.asObservable();
   }
 }

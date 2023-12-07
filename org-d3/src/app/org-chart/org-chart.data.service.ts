@@ -8,7 +8,7 @@ import { Observable, of } from 'rxjs';
 
 
 
-export interface DepartmentNode {
+export interface OrgChartNodeData {
   id: string;
   name: string;
   parent: {
@@ -17,11 +17,11 @@ export interface DepartmentNode {
 }
 
 export interface OrgChartListResponse {
-  allOrgDepartments: DepartmentNode[];
+  allOrgDepartments: OrgChartNodeData[];
 }
 
 export interface OrgChartResponse {
-  orgDepartment: DepartmentNode;
+  orgDepartment: OrgChartNodeData;
 }
 
 @Injectable({
@@ -30,7 +30,7 @@ export interface OrgChartResponse {
 export class OrgChartDataService {
   constructor(private apollo: Apollo) {}
 
-  getHierarchy(): Observable<DepartmentNode[]> {
+  getHierarchy(): Observable<OrgChartNodeData[]> {
     const getHierarchy = gql`
       query getAllDepartmentQuery {
         allOrgDepartments {
@@ -51,7 +51,7 @@ export class OrgChartDataService {
       );
   }
 
-  getDepartmentById(id: string): Observable<DepartmentNode | null> {
+  getDepartmentById(id: string): Observable<OrgChartNodeData | null> {
     const getDepartmentByIDQuery = gql`
       query getDepartmentByID($id: ID!) {
         orgDepartment(id: $id) {

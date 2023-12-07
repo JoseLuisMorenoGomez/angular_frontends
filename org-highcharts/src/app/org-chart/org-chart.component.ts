@@ -1,5 +1,5 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { OrgChartDataService, DepartmentNode } from './org-chart.data.service';
+import { OrgChartDataService, DepartmentData } from './org-chart.data.service';
 import * as Highcharts from 'highcharts';
 import HCSankey from 'highcharts/modules/sankey';
 import HCOrganization from 'highcharts/modules/organization';
@@ -16,13 +16,13 @@ HCOrganization(Highcharts);
 export class OrgChartComponent implements OnInit {
   @ViewChild('chartContainer', { static: false }) chartContainerRef!: ElementRef;
 
-  data: DepartmentNode[] = [];
+  data: DepartmentData[] = [];
   Highcharts: typeof Highcharts = Highcharts;
   chartOptions: Highcharts.Options = {};
   constructor(private orgChartDataService: OrgChartDataService) {}
 
   ngOnInit(): void {
-    this.orgChartDataService.getHierarchy().subscribe((orgData: DepartmentNode[]) => {
+    this.orgChartDataService.getHierarchy().subscribe((orgData: DepartmentData[]) => {
       this.data = orgData;
       this.updateChart();
     });
@@ -64,14 +64,14 @@ export class OrgChartComponent implements OnInit {
     Highcharts.chart(chartContainer, chartOptions);
   }
 
-  mapSeriesData(data: DepartmentNode[]): { from: string; to: string }[] {
+  mapSeriesData(data: DepartmentData[]): { from: string; to: string }[] {
     return data.map((node) => ({
       from: node.parent?.id ?? '',
       to: node.id,
     }));
   }
 
-  mapNodesData(data: DepartmentNode[]): { id: string; title: string }[] {
+  mapNodesData(data: DepartmentData[]): { id: string; title: string }[] {
     return data.map((node) => ({
       id: node.id,
       title: node.name,
