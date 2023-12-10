@@ -3,42 +3,34 @@ import { OrgChart } from 'd3-org-chart';
 import { MatDialog } from '@angular/material/dialog';
 import { HierarchyNode } from 'd3-hierarchy';
 
-import { OrgChartDataService, OrgChartNodeData } from './org-chart.data.service';
+import { OrgChartDataService, D3NodeData } from './org-chart.data.service';
 import { OrgSelectedNodeService } from './org-selected-node.service';
 import { NodePopupComponent } from '../node-popup/node-popup.component';
 
-// Importa las constantes del gráfico y la plantilla del contenido del nodo
-import { ChartConstants } from './chartConstants';
+import { ChartConstants, PagingConstants } from './chartConstants';
 import { nodeContentTemplate, pagingButtomTemplate } from './nodeTemplates';
 
-
-// Función para generar contenido del nodo
-const generateNodeContent = (d:HierarchyNode<OrgChartNodeData>) => {
-  const template = nodeContentTemplate
+const generateNodeContent = (d: HierarchyNode<D3NodeData>) => {
+  return nodeContentTemplate
     .replace('{width}', ChartConstants.width)
     .replace('{height}', ChartConstants.height)
     .replace('{imageDiffVert}', ChartConstants.imageDiffVert)
     .replace('{backgroundColor}', ChartConstants.nodeBackgroundColor)
-    .replace('{border}', d.data._highlighted || ChartConstants.upToTheRootHighlighted ? ChartConstants.highlightedBorder : ChartConstants.defaultBorder)
-    .replace('{id}', d.data.id)
-    .replace('{image}', d.data.image)
+    .replace('{border}', ChartConstants.highlighted || ChartConstants.upToTheRootHighlighted ? ChartConstants.highlightedBorder : ChartConstants.defaultBorder)
+    .replace('{id}', d.data.nodeId)
     .replace('{name}', d.data.name)
     .replace('{position}', d.data.position)
     .replace('{textColor}', ChartConstants.textColor);
-
-  return template;
 };
 
-// Función para generar el botón de paginación
-const generatePagingButton = (d:HierarchyNode<OrgChartNodeData>, state:any) => {
+const generatePagingButton = (d: HierarchyNode<D3NodeData>, state: any) => {
   const step = state.pagingStep(d.parent);
-  const currentIndex = d.parent.data._pagingStep;
-  const diff = d.parent.data._directSubordinatesPaging - currentIndex;
+  const currentIndex = PagingConstants.pagingStep;
+  const diff = 4;
   const min = Math.min(diff, step);
-  const template = pagingButtomTemplate
+  return pagingButtomTemplate
     .replace('{min}', ChartConstants.min)
-    .replace('{nodeBackgroundColor}', ChartConstants.nodeBackgroundColor)  
-  return template;
+    .replace('{nodeBackgroundColor}', ChartConstants.nodeBackgroundColor);
 };
 
 @Component({
@@ -47,8 +39,8 @@ const generatePagingButton = (d:HierarchyNode<OrgChartNodeData>, state:any) => {
   styleUrls: ['./org-chart.component.css'],
 })
 export class OrgChartComponent implements AfterViewInit {
-  private chart: OrgChart<OrgChartNodeData>;
-  private data: OrgChartNodeData[];
+  private chart: OrgChart<D3NodeData>;
+  private data: D3NodeData[];
   private chartConstants = ChartConstants;
 
   @ViewChild('chartContainer', { static: false }) chartContainerRef: ElementRef;
@@ -60,27 +52,30 @@ export class OrgChartComponent implements AfterViewInit {
   ) {}
 
   ngAfterViewInit(): void {
-    this.orgChartDataService.getHierarchy().subscribe((nodesData: OrgChartNodeData[]) => {
+    this.orgChartDataService.getHierarchy().subscribe((nodesData: D3NodeData[]) => {
       this.data = nodesData;
       this.renderChart();
     });
   }
 
   ngOnDestroy() {
-    //TODO: De-suscribirse para evitar posibles fugas de memoria
-  
+    // TODO: Desuscribirse para evitar posibles fugas de memoria
   }
 
   private renderChart(): void {
+    const chartContainer = this.chartContainerRef.nativeElement;
+
+    this.chart = new OrgChart<D3NodeData>().container(chartContainer);
+
     if (this.data) {
-      this.chart = new OrgChart<OrgChartNodeData>()
+      this.chart = new OrgChart<D3NodeData>()
+        .data(this.data)
         .compact(false)
         .pagingStep((d) => 5)
-        .minPagingVisibleNodes((d) => 14)
+        .minPagingVisibleNodes((d) => 4)
         .container(this.chartContainerRef.nativeElement)
         .svgWidth(800)
         .svgHeight(600)
-        .data(this.data)
         .onNodeClick((d) => {
           this.onSelectNode(d);
         })
@@ -96,18 +91,18 @@ export class OrgChartComponent implements AfterViewInit {
     }
   }
 
-  private onSelectNode(d3Node: HierarchyNode<OrgChartNodeData>): void {
+  private onSelectNode(d3Node: HierarchyNode<D3NodeData>): void {
     const selectedNode = d3Node.data;
     this.orgSelectedNodeService.setSelectedNode(selectedNode);
 
-    this.orgChartDataService.getDepartmentById(selectedNode.id).subscribe((nodeInfo) => {
+    this.orgChartDataService.getDepartmentById(selectedNode.nodeId).subscribe((nodeInfo) => {
       if (nodeInfo) {
         this.openNodeInfoPopup(nodeInfo);
       }
     });
   }
 
-  private openNodeInfoPopup(nodeInfo: OrgChartNodeData): void {
+  private openNodeInfoPopup(nodeInfo: D3NodeData): void {
     const dialogRef = this.dialog.open(NodePopupComponent, {
       width: '600px',
       height: '400px',

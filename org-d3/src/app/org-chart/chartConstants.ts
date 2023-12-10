@@ -9,6 +9,12 @@ export const ChartConstants = {
   height: '125',
   imageDiffVert: '27',
   upToTheRootHighlighted: true, 
+  highlighted : true,
   min: '5',
 
 };
+
+export const PagingConstants = {
+
+  pagingStep: 5,
+}
