@@ -115,7 +115,7 @@ export class OrgChartDataService {
       nodeId: node.id,
       name: node.name,
       parentId: node.parent?.id || null,
-      position: node.managerPosition.name,
+      position: node.managerPosition?.name || '?'
     }));
   }
 }
