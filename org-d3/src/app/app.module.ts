@@ -15,6 +15,7 @@ import { OrgSelectedNodeService} from './org-chart/org-selected-node.service';
 import { OrgChartDataService } from './org-chart/org-chart.data.service';
 import { MatDialogModule } from '@angular/material/dialog';
 
+
 @NgModule({
   imports: [BrowserModule, ApolloModule, HttpClientModule,MatDialogModule,],
   declarations: [AppComponent,

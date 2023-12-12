@@ -30,8 +30,8 @@ export interface OrgChartResponse {
 export class OrgChartDataService {
   constructor(private apollo: Apollo) {}
 
-  getHierarchy(): Observable<DepartmentData[]> {
-    const getHierarchy = gql`
+   getDepartmentList(): Observable<DepartmentData[]> {
+    const  getDepartmentList = gql`
       query getAllDepartmentQuery {
         allOrgDepartments {
           id
@@ -45,14 +45,14 @@ export class OrgChartDataService {
 
     return this.apollo
       .watchQuery<OrgChartListResponse>({
-        query: getHierarchy,
+        query:  getDepartmentList,
       })
       .valueChanges.pipe(map((result) => result.data.allOrgDepartments)
       );
   }
 
   getDepartmentById(id: string): Observable<DepartmentData | null> {
-    const getDepartmentByIDQuery = gql`
+    const getDepartmentByIdQuery = gql`
       query getDepartmentByID($id: ID!) {
         orgDepartment(id: $id) {
           id
@@ -66,7 +66,7 @@ export class OrgChartDataService {
   
     return this.apollo
       .watchQuery<OrgChartResponse>({
-        query: getDepartmentByIDQuery,
+        query: getDepartmentByIdQuery,
         variables: {
           id: id,
         },

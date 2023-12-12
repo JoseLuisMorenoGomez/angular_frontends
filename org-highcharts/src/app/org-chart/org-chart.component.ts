@@ -22,7 +22,7 @@ export class OrgChartComponent implements OnInit {
   constructor(private orgChartDataService: OrgChartDataService) {}
 
   ngOnInit(): void {
-    this.orgChartDataService.getHierarchy().subscribe((orgData: DepartmentData[]) => {
+    this.orgChartDataService. getDepartmentList().subscribe((orgData: DepartmentData[]) => {
       this.data = orgData;
       this.updateChart();
     });

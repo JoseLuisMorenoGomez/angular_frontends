@@ -1,14 +1,17 @@
-import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+// org-chart.component.ts
+
+import { Component, AfterViewInit, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { OrgChart } from 'd3-org-chart';
 import { MatDialog } from '@angular/material/dialog';
 import { HierarchyNode } from 'd3-hierarchy';
+import { Subscription } from 'rxjs';
 
 import { OrgChartDataService, D3NodeData } from './org-chart.data.service';
 import { OrgSelectedNodeService } from './org-selected-node.service';
 import { NodePopupComponent } from '../node-popup/node-popup.component';
 
 import { ChartConstants, PagingConstants } from './chartConstants';
-import { nodeContentTemplate, pagingButtomTemplate } from './nodeTemplates';
+import { nodeContentTemplate, pagingButtomTemplate } from './chartTemplates';
 
 const generateNodeContent = (d: HierarchyNode<D3NodeData>) => {
   return nodeContentTemplate
@@ -17,8 +20,9 @@ const generateNodeContent = (d: HierarchyNode<D3NodeData>) => {
     .replace('{imageDiffVert}', ChartConstants.imageDiffVert)
     .replace('{backgroundColor}', ChartConstants.nodeBackgroundColor)
     .replace('{border}', ChartConstants.highlighted || ChartConstants.upToTheRootHighlighted ? ChartConstants.highlightedBorder : ChartConstants.defaultBorder)
-    .replace('{id}', d.data.nodeId)
+    .replace('{id}', String(d.data.nodeId))
     .replace('{name}', d.data.name)
+    .replace('{image}', d.data.image)
     .replace('{position}', d.data.position)
     .replace('{textColor}', ChartConstants.textColor);
 };
@@ -38,7 +42,9 @@ const generatePagingButton = (d: HierarchyNode<D3NodeData>, state: any) => {
   templateUrl: './org-chart.component.html',
   styleUrls: ['./org-chart.component.css'],
 })
-export class OrgChartComponent implements AfterViewInit {
+export class OrgChartComponent implements AfterViewInit, OnDestroy {
+  private chartDataSubscription: Subscription;
+
   private chart: OrgChart<D3NodeData>;
   private data: D3NodeData[];
   private chartConstants = ChartConstants;
@@ -52,14 +58,17 @@ export class OrgChartComponent implements AfterViewInit {
   ) {}
 
   ngAfterViewInit(): void {
-    this.orgChartDataService.getHierarchy().subscribe((nodesData: D3NodeData[]) => {
+    this.chartDataSubscription = this.orgChartDataService.getDepartmentList().subscribe((nodesData: D3NodeData[]) => {
+      console.log(nodesData);
       this.data = nodesData;
       this.renderChart();
     });
   }
 
   ngOnDestroy() {
-    // TODO: Desuscribirse para evitar posibles fugas de memoria
+    if (this.chartDataSubscription) {
+      this.chartDataSubscription.unsubscribe();
+    }
   }
 
   private renderChart(): void {
@@ -92,11 +101,14 @@ export class OrgChartComponent implements AfterViewInit {
   }
 
   private onSelectNode(d3Node: HierarchyNode<D3NodeData>): void {
+    console.log('onSelectNode Called! ' + d3Node.data.name);
     const selectedNode = d3Node.data;
     this.orgSelectedNodeService.setSelectedNode(selectedNode);
-
-    this.orgChartDataService.getDepartmentById(selectedNode.nodeId).subscribe((nodeInfo) => {
+    this.orgChartDataService.getDepartmentById(selectedNode.nodeId).subscribe((nodeInfo: D3NodeData | null) => {
+    
       if (nodeInfo) {
+        console.log('NodeInfo: ');
+        console.log(nodeInfo);
         this.openNodeInfoPopup(nodeInfo);
       }
     });
@@ -110,4 +122,5 @@ export class OrgChartComponent implements AfterViewInit {
     });
   }
 }
+
 

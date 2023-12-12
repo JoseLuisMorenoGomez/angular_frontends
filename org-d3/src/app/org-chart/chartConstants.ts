@@ -11,10 +11,10 @@ export const ChartConstants = {
   upToTheRootHighlighted: true, 
   highlighted : true,
   min: '5',
-
-};
+  fallbackImage: 'assets/images/avatar-659651_1280.png'};
 
 export const PagingConstants = {
 
   pagingStep: 5,
 }
+

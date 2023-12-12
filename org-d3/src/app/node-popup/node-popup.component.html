@@ -1,14 +1,17 @@
 <!-- node-popup.component.html -->
 <div class="modal">
   <div class="modal-content">
-    <h4>Datos disponibles del órgano seleccionado: </h4>
+    <h5>Datos disponibles del órgano seleccionado: </h5>
     <form>
       <div class="input-field">
         <span class="input-field-label">Nombre: </span>
         <span class="input-field-data">{{data.nodeInfo.name}}</span>
-        
       </div>
-      <!-- Agrega más campos según tu estructura de datos -->
+      <div class="input-field">
+        <span class="input-field-label">Puesto: </span>
+        <span class="input-field-data">{{data.nodeInfo.position}}</span>
+      </div>
+      
 
       <!-- Botón para cerrar la ventana modal -->
       <button class="btn waves-effect waves-light" type="button" (click)="closeDialog()">Cerrar</button>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { OrgSelectedNodeService } from '../org-chart/org-selected-node.service';
 import { Subscription } from 'rxjs';
 import { D3NodeData } from '../org-chart/org-chart.data.service';
@@ -8,19 +8,20 @@ import { D3NodeData } from '../org-chart/org-chart.data.service';
   templateUrl: './right-panel.component.html',
   styleUrls: ['./right-panel.component.css']
 })
-export class RightPanelComponent implements OnInit {
-  selectedNode: D3NodeData | null;
+export class RightPanelComponent implements OnInit, OnDestroy {
+  selectedNode: D3NodeData | null = null;  // Inicializa selectedNode como null
   private subscription: Subscription;
 
   constructor(private orgSelectedNodeService: OrgSelectedNodeService) {}
 
   ngOnInit() {
     this.subscription = this.orgSelectedNodeService.getSelectedNode$().subscribe((selectedNode) => {
-      if (selectedNode) {
-        this.selectedNode = selectedNode;
-      } else {
-        this.selectedNode = null;
-      }
+      this.selectedNode = selectedNode
+        ? {
+            ...selectedNode,
+            name: selectedNode.name !== null ? selectedNode.name : '', // Asegurando que 'name' no sea null
+          }
+        : null;
     });
   }
 
@@ -29,5 +30,4 @@ export class RightPanelComponent implements OnInit {
     this.subscription.unsubscribe();
   }
 }
-
 
